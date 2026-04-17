@@ -1,59 +1,116 @@
 from flask import Flask, request, render_template, jsonify
 import uuid
-import requests # 用来调用其他服务和函数
+import requests
+from tablestore import *
 
 app = Flask(__name__)
 
-# 模拟 Data Service 的内部逻辑 (实际项目中这些可以拆分到不同容器)
-# 注意：这里需要安装 tablestore 库，稍后在 Docker 部分我会讲
-DATABASE_URL = "你的Tablestore私网地址"
+# --- 1. 阿里云参数配置 ---
+OTS_ENDPOINT = 'https://campusbuzz-db.cn-hangzhou.ots.aliyuncs.com'
+OTS_ID = 'LTAI5tP48EfiSHNBXArfz5oC'
+OTS_SECRET = 'AsCOzNK16KOfEePjXzz7t11TICNhZ3'
+OTS_INSTANCE = 'campusbuzz-db'
 
-# --- Component 1: Presentation Service (路由) ---
+# 你的第一个函数 (Submission Event Function) 的 URL
+FC_SUBMISSION_URL = "https://campus-bmission-dnlxjedizq.cn-hangzhou.fcapp.run"
+
+# 初始化数据库客户端 (Data Service 组件角色)
+client = OTSClient(OTS_ENDPOINT, OTS_ID, OTS_SECRET, OTS_INSTANCE)
+
+
+# --- 2. Data Service 组件：存入初始记录 ---
+def save_to_db(data):
+    primary_key = [('event_id', data['event_id'])]
+    attribute_columns = [
+        ('title', data['title']),
+        ('description', data['description']),
+        ('location', data['location']),
+        ('date', data['date']),
+        ('organiser', data['organiser']),
+        ('status', data['status'])
+    ]
+    try:
+        client.put_row('events', Row(primary_key, attribute_columns))
+        print(f"[Data Service] Saved {data['event_id']} to Tablestore")
+        return True
+    except Exception as e:
+        print(f"Data Service Error: {e}")
+        return False
+
+
+
+
+
+
+
+# --- 3. Presentation Service 组件：显示表单 ---
 @app.route('/')
 def index():
-    # 返回一个独立的 HTML 模板页面
     return render_template('index.html')
 
-# --- Component 2: Workflow Service (路由) ---
+
+# --- 4. Workflow Service 组件：处理提交并触发函数 ---
 @app.route('/submit', methods=['POST'])
 def submit():
-    # 1. 获取表单数据
-    data = {
-        "event_id": str(uuid.uuid4()), # 生成唯一ID
+    event_id = str(uuid.uuid4())
+    # 获取表单数据并初始化状态为 PENDING
+    event_data = {
+        "event_id": event_id,
         "title": request.form.get('title'),
         "description": request.form.get('description'),
         "location": request.form.get('location'),
         "date": request.form.get('date'),
         "organiser": request.form.get('organiser'),
-        "status": "PENDING" # 初始状态
+        "status": "PENDING"
     }
 
-    # 2. 调用 Data Service 存储初始记录
-    # 这里我们简化为直接调用保存函数
-    save_to_db(data)
+    # 第一步：存入数据库
+    if save_to_db(event_data):
+        # 第二步：触发 Serverless 工作流
+        # --- 修改这一段进行调试 ---
+        try:
+            # 增加 timeout 到 5 秒，看看是不是因为 1 秒太短了导致断开
+            response = requests.post(FC_SUBMISSION_URL, json={"event_id": event_id}, timeout=5)
+            print(f"[Trigger] Status Code: {response.status_code}")
+            print(f"[Trigger] Response: {response.text}")
+        except Exception as e:
+            print(f"[Trigger] CRITICAL ERROR: {str(e)}")
 
-    # 3. 关键：触发第一个 Serverless 函数 (Submission Event Function)
-    # 你需要替换成你阿里云函数的触发地址
-    FC_URL = "https://你的函数触发链接.fc.aliyuncs.com"
-    try:
-        requests.post(FC_URL, json=data, timeout=5)
-    except:
-        pass # 后台触发，不需要等待结果
+        return f'''
+            <h2>Success! Submission Received.</h2>
+            <p>Your ID: <b>{event_id}</b></p>
+            <p><a href="/results/{event_id}">[ Click here to check audit status ]</a></p>
+        '''
+    return "Error: Could not save to database."
 
-    return f"Event submitted! Your ID is: {data['event_id']}. Please check back in a few seconds."
 
-# --- Component 3: Data Service (内部存储逻辑) ---
-def save_to_db(data):
-    # 这里写连接 Tablestore 的逻辑
-    # 暂时用 print 模拟，后续我们会补全 SDK 代码
-    print(f"[Data Service] Saving record: {data['event_id']}")
-    return True
-
+# --- 5. Presentation/Data Service 组合：查询真实结果 ---
 @app.route('/results/<event_id>')
 def get_results(event_id):
-    # 从数据库读取结果并显示
-    # 模拟返回
-    return jsonify({"status": "APPROVED", "category": "ACADEMIC", "priority": "MEDIUM"})
+    """
+    此路由非常关键！它会读取由函数计算更新后的真实数据。
+    如果你的函数 C 没工作，这里永远会显示 PENDING。
+    """
+    primary_key = [('event_id', event_id)]
+    try:
+        _, row, _ = client.get_row('events', primary_key)
+        if not row:
+            return "Record not found."
+
+        # 将结果列转为字典
+        # 加上一个 _ 来忽略掉多出来的那个时间戳参数
+        res = {attr[0]: attr[1] for attr in row.attribute_columns}
+        # 返回符合项目要求的 4 个核心字段
+        return jsonify({
+            "event_id": event_id,
+            "final_status": res.get('status'),
+            "category": res.get('category', 'Waiting...'),
+            "priority": res.get('priority', 'Waiting...'),
+            "review_note": res.get('explanation', 'Background processing...')
+        })
+    except Exception as e:
+        return f"Query failed: {str(e)}"
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
