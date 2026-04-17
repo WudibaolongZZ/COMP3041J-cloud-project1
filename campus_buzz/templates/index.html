@@ -1,0 +1,59 @@
+<!--活动提交页面-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Buzz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <h1>Campus Buzz</h1>
+            <p>Submit your campus events</p>
+        </header>
+
+        <main class="content">
+            <section class="card">
+                <h2>Submit Event</h2>
+                <form action="/submit" method="post" class="event-form">
+                    <label>Title
+                        <input type="text" name="title" placeholder="Event title" required />
+                    </label>
+
+                    <label>Description
+                        <textarea name="description" rows="5" placeholder="Please provide a description of no less than 40 words"></textarea>
+                    </label>
+
+                    <div class="field-row">
+                        <label>Location
+                            <input type="text" name="location" placeholder="E.g. Library" />
+                        </label>
+                        <label>Date
+                            <input type="date" name="date" />
+                        </label>
+                    </div>
+
+                    <label>Organiser
+                        <input type="text" name="organiser" placeholder="Your name or group" />
+                    </label>
+
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+            </section>
+
+            <section class="card rule-card">
+                <h3>Explanation of Review Rules</h3>
+                <ul>
+                    <li>All fields are mandatory. If any field is left blank, the result will be <strong>INCOMPLETE</strong>。</li>
+                    <li>日期必须符合 <strong>YYYY-MM-DD</strong> 格式，否则结果为 <strong>NEEDS REVISION</strong>。</li>
+                    <li>Please provide a description of no less than 40 words.，过短也会返回 <strong>NEEDS REVISION</strong>。</li>
+                    <li>关键字会决定分类：<strong>OPPORTUNITY &gt; ACADEMIC &gt; SOCIAL &gt; GENERAL</strong>。</li>
+                    <li>优先级规则：OPPORTUNITY=HIGH，ACADEMIC=MEDIUM，SOCIAL/GENERAL=NORMAL。</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -11,18 +11,8 @@ DATABASE_URL = "你的Tablestore私网地址"
 # --- Component 1: Presentation Service (路由) ---
 @app.route('/')
 def index():
-    # 返回一个简单的 HTML 表单页面
-    return '''
-        <h1>Campus Buzz - Submit Event</h1>
-        <form action="/submit" method="post">
-            Title: <input type="text" name="title"><br>
-            Description: <textarea name="description"></textarea><br>
-            Location: <input type="text" name="location"><br>
-            Date (YYYY-MM-DD): <input type="text" name="date"><br>
-            Organiser: <input type="text" name="organiser"><br>
-            <input type="submit" value="Submit">
-        </form>
-    '''
+    # 返回一个独立的 HTML 模板页面
+    return render_template('index.html')
 
 # --- Component 2: Workflow Service (路由) ---
 @app.route('/submit', methods=['POST'])
