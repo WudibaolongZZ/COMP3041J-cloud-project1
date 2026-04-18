@@ -87,6 +87,8 @@ body {
     border-radius: 12px;
     background: #f8fafc;
     color: var(--text);
+    font-family: inherit;
+    resize: vertical;
 }
 
 .field-row {

@@ -76,11 +76,20 @@ def submit():
         except Exception as e:
             print(f"[Trigger] CRITICAL ERROR: {str(e)}")
 
-        return f'''
-            <h2>Success! Submission Received.</h2>
-            <p>Your ID: <b>{event_id}</b></p>
-            <p><a href="/results/{event_id}">[ Click here to check audit status ]</a></p>
-        '''
+        # 创建结果字典用于渲染result.html
+        result = {
+            'status': 'PENDING',
+            'category': '—',
+            'priority': '—',
+            'event_id': event_id,
+            'note': 'Your submission is being processed. Please wait for the audit to complete.',
+            'title': event_data['title'],
+            'description': event_data['description'],
+            'location': event_data['location'],
+            'date': event_data['date'],
+            'organiser': event_data['organiser']
+        }
+        return render_template('result.html', result=result)
     return "Error: Could not save to database."
 
 
