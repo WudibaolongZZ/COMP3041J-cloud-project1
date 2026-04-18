@@ -1,0 +1,53 @@
+from flask import Flask, request, render_template, jsonify
+import requests
+
+app = Flask(__name__)
+
+WORKFLOW_URL = "http://localhost:5001/api/workflow/submit"
+DATA_GET_URL = "http://localhost:5002/api/data/get/"
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    # 转发请求给 Workflow Service
+    form_data = request.form.to_dict()
+    resp = requests.post(WORKFLOW_URL, json=form_data)
+
+    if resp.status_code == 200:
+        res_data = resp.json()
+        result = {
+            'status': 'PENDING', 'event_id': res_data['event_id'],
+            'note': 'Audit triggered. Please wait.',
+            **form_data  # 展开表单数据用于显示
+        }
+        return render_template('result.html', result=result)
+    return "Submission Error", 500
+
+
+@app.route('/results/<event_id>')
+def get_results(event_id):
+    # 转发请求给 Data Service
+    resp = requests.get(DATA_GET_URL + event_id)
+    if resp.status_code == 200:
+        data = resp.json()
+        return jsonify({
+            "event_id": event_id,
+            "final_status": data.get('status'),
+            "category": data.get('category', 'Waiting...'),
+            "priority": data.get('priority', 'Waiting...'),
+            "review_note": data.get('explanation', 'Background processing...')
+        })
+    return "Not ready or Error", 404
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
+
+
+ # python campus_buzz/presentation_service.py
