@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 # --- 1. 阿里云参数配置 ---
 OTS_ENDPOINT = 'https://campusbuzz-db.cn-hangzhou.ots.aliyuncs.com'
-OTS_ID = 'LTAI5tP48EfiSHNBXArfz5oC'
-OTS_SECRET = 'AsCOzNK16KOfEePjXzz7t11TICNhZ3'
+OTS_ID = ''
+OTS_SECRET = ''
 OTS_INSTANCE = 'campusbuzz-db'
 
 # 你的第一个函数 (Submission Event Function) 的 URL
