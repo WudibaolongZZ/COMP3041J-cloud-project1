@@ -7,40 +7,40 @@
     <title>Campus Buzz</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <!-- 添加日期输入框的占位符样式 -->
-    <style>
-        /* 日期输入框自定义占位符 */
-        input[type="date"] {
-            position: relative;
-        }
+<!--    <style>-->
+<!--        /* 日期输入框自定义占位符 */-->
+<!--        input[type="date"] {-->
+<!--            position: relative;-->
+<!--        }-->
 
-        input[type="date"]:before {
-            content: attr(placeholder);
-            color: #999;
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #f8fafc;
-            pointer-events: none;
-            padding: 0 2px;
-        }
+<!--        input[type="date"]:before {-->
+<!--            content: attr(placeholder);-->
+<!--            color: #999;-->
+<!--            position: absolute;-->
+<!--            left: 12px;-->
+<!--            top: 50%;-->
+<!--            transform: translateY(-50%);-->
+<!--            background: #f8fafc;-->
+<!--            pointer-events: none;-->
+<!--            padding: 0 2px;-->
+<!--        }-->
 
-        input[type="date"]:focus:before,
-        input[type="date"]:valid:before {
-            display: none;
-        }
+<!--        input[type="date"]:focus:before,-->
+<!--        input[type="date"]:valid:before {-->
+<!--            display: none;-->
+<!--        }-->
 
-        /* 确保日期选择器的文字有合适的内边距 */
-        input[type="date"] {
-            padding-left: 12px;
-        }
+<!--        /* 确保日期选择器的文字有合适的内边距 */-->
+<!--        input[type="date"] {-->
+<!--            padding-left: 12px;-->
+<!--        }-->
 
-        /* 当有值或聚焦时，正常显示日期文字 */
-        input[type="date"]:focus,
-        input[type="date"]:valid {
-            color: var(--text);
-        }
-    </style>
+<!--        /* 当有值或聚焦时，正常显示日期文字 */-->
+<!--        input[type="date"]:focus,-->
+<!--        input[type="date"]:valid {-->
+<!--            color: var(&#45;&#45;text);-->
+<!--        }-->
+<!--    </style>-->
 </head>
 <body>
     <div class="page-shell">
@@ -66,12 +66,12 @@
                             <input type="text" name="location" placeholder="E.g. Library" />
                         </label>
                         <label>Date
-<!--                            <input type="text" name="date" placeholder="YYYY-MM-DD" required />-->
+                            <input type="text" name="date" placeholder="YYYY-MM-DD" required />
 <!--                            <input type="date" name="date" required>-->
-                            <input type="date"
-                                   name="date"
-                                   placeholder="YYYY-MM-DD"
-                                   required>
+<!--                            <input type="date"-->
+<!--                                   name="date"-->
+<!--                                   placeholder="YYYY-MM-DD"-->
+<!--                                   required>-->
 
 <!--                            <small style="color: #666;">Required Format: YYYY-MM-DD</small>-->
                         </label>
