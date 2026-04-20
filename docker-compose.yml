@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  data-service:
+    image: python:3.10-slim
+    container_name: data-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./campus_buzz:/app
+    working_dir: /app
+    command: >
+      sh -c "pip install flask tablestore requests -i https://pypi.tuna.tsinghua.edu.cn/simple && 
+             python data_service.py"
+    restart: always
+
+  workflow-service:
+    image: python:3.10-slim
+    container_name: workflow-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./campus_buzz:/app
+    working_dir: /app
+    command: >
+      sh -c "pip install flask requests -i https://pypi.tuna.tsinghua.edu.cn/simple && 
+             python workflow_service.py"
+    restart: always
+
+  presentation-service:
+    image: python:3.10-slim
+    container_name: presentation-service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./campus_buzz:/app
+    working_dir: /app
+    command: >
+      sh -c "pip install flask requests -i https://pypi.tuna.tsinghua.edu.cn/simple && 
+             python presentation_service.py"
+    restart: always
