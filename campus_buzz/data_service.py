@@ -3,7 +3,6 @@ from tablestore import *
 
 app = Flask(__name__)
 
-# 填写你的 Tablestore 配置
 OTS_ENDPOINT = 'https://campusbuzz-db.cn-hangzhou.ots.aliyuncs.com'
 OTS_ID = ''
 OTS_SECRET = ''

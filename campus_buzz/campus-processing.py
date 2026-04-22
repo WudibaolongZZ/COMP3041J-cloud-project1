@@ -6,7 +6,7 @@ from datetime import datetime
 
 def handler(event, context):
     try:
-        # --- 1. 解析包装数据 (支持多种调用来源) ---
+        # 1. Parse packaging data (supports multiple calling sources)
         if isinstance(event, (str, bytes)):
             payload = json.loads(event)
         else:
@@ -22,45 +22,45 @@ def handler(event, context):
 
         eid = data.get('event_id')
 
-        # --- 2. 严格的完整性检查 (最高优先级: Rule 1) ---
+        # 2. Strict integrity check (highest priority: Rule 1)
         required_fields = ['title', 'description', 'location', 'date', 'organiser']
         missing = [f for f in required_fields if not data.get(f) or str(data.get(f)).strip() == ""]
 
         if missing:
             status = "INCOMPLETE"
-            # 当完整性校验失败时，不应进行分类
+            # When the integrity check fails, classification should not be carried out.
             category = "N/A"
             priority = "N/A"
             note = f"Required field(s) missing: {', '.join(missing)}. Audit halted."
         else:
-            # --- 3. 详细的格式与长度检查 (中优先级: Rule 2 & 3) ---
+            # 3. Detailed format and length check (Medium priority: Rules 2 & 3)
             title = data.get('title', '')
             desc = data.get('description', '')
             date_str = data.get('date', '')
 
             revision_reasons = []
 
-            # 验证日期格式
+            # Verify the date format
             try:
                 datetime.strptime(date_str, '%Y-%m-%d')
             except:
                 revision_reasons.append("Date format must be YYYY-MM-DD.")
 
-            # 验证描述长度
+            # Verify the description length
             if len(desc) < 40:
                 revision_reasons.append(f"Description too short ({len(desc)}/40 chars).")
 
             if revision_reasons:
                 status = "NEEDS REVISION"
-                # 当格式校验失败时，同样不应进行分类
+                # When the format check fails, classification should not be carried out either.
                 category = "N/A"
                 priority = "N/A"
                 note = " ".join(revision_reasons)
             else:
-                # --- 4. 分类逻辑 (最低优先级: 只有字段齐全且格式正确才执行) ---
+                # 4. Classification logic (lowest priority: execution is only carried out when all fields are complete and in correct format)
                 full_text = (title + " " + desc).lower()
 
-                # 严格按照文档要求的优先级顺序 (Rule 4)
+                # Strictly follow the priority order specified in the document (Rule 4)
                 if any(k in full_text for k in ['career', 'internship', 'recruitment']):
                     category = "OPPORTUNITY"
                     priority = "HIGH"
@@ -77,7 +77,7 @@ def handler(event, context):
                 status = "APPROVED"
                 note = "All checks passed successfully."
 
-        # --- 5. 封装结果并传递给函数 C ---
+        # 5. Package the result and pass it to function C
         result = {
             "event_id": eid,
             "status": status,
@@ -86,7 +86,7 @@ def handler(event, context):
             "explanation": note
         }
 
-        # 调试日志：确保在控制台能看到逻辑输出
+        # Debug log: Ensure that the logical output can be seen in the console.
         print(f"Audit Complete for {eid}: Status={status}, Category={category}")
 
         UPDATE_URL = "https://campus-update-kiukrcarwl.cn-hangzhou.fcapp.run"

@@ -10,7 +10,7 @@ client = OTSClient(OTS_ENDPOINT, OTS_ID, OTS_SECRET, OTS_INSTANCE)
 
 def handler(event, context):
     try:
-        # --- 核心：解析来自 B 的包装数据 ---
+        # Core: Analyze the packaging data sent from B
         if isinstance(event, (str, bytes)):
             payload = json.loads(event)
         else:
@@ -28,7 +28,7 @@ def handler(event, context):
         eid = res.get('event_id')
         if not eid: return "Error: No ID"
 
-        # 执行更新
+        # Carry out the update
         primary_key = [('event_id', str(eid))]
         update_cols = {'PUT': [
             ('status', res.get('status')), ('category', res.get('category')),

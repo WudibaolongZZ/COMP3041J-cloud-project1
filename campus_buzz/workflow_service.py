@@ -3,7 +3,7 @@ import uuid, requests
 
 app = Flask(__name__)
 
-# 云端内部通信：使用容器服务名
+
 DATA_SERVICE_URL = "http://data-service:5002/api/data/save"
 FC_SUBMISSION_URL = "https://campus-bmission-dnlxjedizq.cn-hangzhou.fcapp.run"
 
@@ -16,7 +16,7 @@ def handle_workflow():
     db_resp = requests.post(DATA_SERVICE_URL, json=event_data)
     if db_resp.status_code == 200:
         try:
-            # 触发第一个 FC 函数
+            # Trigger the first FC function
             requests.post(FC_SUBMISSION_URL, json={"event_id": event_id}, timeout=1)
         except: pass
         return jsonify({"event_id": event_id}), 200
