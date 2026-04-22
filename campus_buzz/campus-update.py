@@ -2,8 +2,8 @@ import json
 from tablestore import *
 
 OTS_ENDPOINT = 'https://campusbuzz-db.cn-hangzhou.ots.aliyuncs.com'
-OTS_ID = 'LTAI5tP48EfiSHNBXArfz5oC'
-OTS_SECRET = 'AsCOzNK16KOfEePjXzz7t11TICNhZ3'
+OTS_ID = ''
+OTS_SECRET = ''
 OTS_INSTANCE = 'campusbuzz-db'
 client = OTSClient(OTS_ENDPOINT, OTS_ID, OTS_SECRET, OTS_INSTANCE)
 
