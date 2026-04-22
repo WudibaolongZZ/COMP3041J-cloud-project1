@@ -96,7 +96,7 @@ User → Presentation Service → Workflow Service → Data Service
 
 ## How to Run the Project
 
-### Option 1: Access Deployed Version (Recommended)
+### Access Deployed Version
 The application has been deployed on a cloud server and is continuously running.
 
 You can directly access it via:
